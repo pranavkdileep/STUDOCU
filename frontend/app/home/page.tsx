@@ -9,6 +9,7 @@ import { User } from '@/interfaces/user';
  function Page() {
   const router = useRouter()
   const [email, setEmail] = useState('')
+  const [userId , setUserId] = useState('')
   const [validity, setValidity] = useState('')
   const [islogedIn, setIslogedIn] = useState(false)
 
@@ -28,6 +29,7 @@ import { User } from '@/interfaces/user';
     } else {
       const user = result.decoded as User;
       setEmail(user.email);
+      setUserId(user.userid);
       const normal = new Date(user.exp * 1000);
       setValidity(normal.toString());
       setIslogedIn(true);
@@ -47,6 +49,7 @@ import { User } from '@/interfaces/user';
     {islogedIn && (
       <div>
         <h1>Welcome {email}</h1>
+        <p>Your user id is {userId}</p>
         <p>Your token is valid until {validity}</p>
       </div>
     )}

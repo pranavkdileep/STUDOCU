@@ -7,15 +7,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { signUp } from '@/app/actions/auth'
+import { useState } from 'react'
 
 export function SignUpForm() {
   const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
+  const [haveerror, setHaveError] = useState<boolean>(false)
 
   async function handleSubmit(formData: FormData) {
     const result = await signUp(formData)
     if(result.success){
       alert('Sign up successful')
       router.push('/home')
+    }else{
+      setError(result.error ?? 'An unknown error occurred')
+      setHaveError(true)
     }
   }
 
@@ -40,6 +46,7 @@ export function SignUpForm() {
           
           <Button type="submit" className="w-full mt-4">Sign Up</Button>
         </form>
+        {haveerror && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </CardContent>
       <CardFooter className="flex justify-center">
         <Button variant="link" onClick={() => router.push('/login')}>Already have an account? Log in</Button>

@@ -1,21 +1,42 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState,useEffect } from 'react'
+import { useRouter,useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { forgotPassword } from '@/app/actions/auth'
+import {  resetPassword, verifypassToken } from '@/app/actions/auth'
 
-export function ForgotPasswordForm() {
+export function ResetPasswordForm() {
   const [message, setMessage] = useState<string | null>(null)
+  const searchParams = useSearchParams()
   const router = useRouter()
+  const token = searchParams.get('token')
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      console.log("password reset token", token)
+      if (!token) {
+        setMessage('Invalid token')
+      } else {
+        const result = await verifypassToken(token)
+        if (result.success) {
+          setMessage('token verified')
+        }else{
+          setMessage(result.error ?? 'An error occurred')
+        }
+      }
+    }
+    verifyToken()
+  }, [token])
 
   async function handleSubmit(formData: FormData) {
-    const result = await forgotPassword(formData)
+    const result = await resetPassword(formData,token ?? '')
+
+
     if (result.success) {
-      setMessage("https://studocu-lovat.vercel.app/resetPassword?token="+result.token)  
+      setMessage('password reset successfully')  
     } else {
       setMessage(result.error ?? 'An error occurred')
     }
@@ -24,15 +45,15 @@ export function ForgotPasswordForm() {
   return (
     <Card className="w-[350px]">
       <CardHeader>
-        <CardTitle>Forgot Password</CardTitle>
-        <CardDescription>Enter your email to reset your password</CardDescription>
+        <CardTitle>Reset Password</CardTitle>
+        <CardDescription>Enter your new password</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={handleSubmit}>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="Enter your email" required />
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" placeholder="Enter your password" required />
             </div>
           </div>
           {message && <p className={`mt-2 ${message.includes('error') ? 'text-red-500' : 'text-green-500'}`}>{message}</p>}
